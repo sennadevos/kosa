@@ -20,9 +20,9 @@ func New(b backend.Backend, cfg *config.Config) *App {
 	return &App{Backend: b, Config: cfg}
 }
 
-// resolveAccountID resolves an account name to an ID.
+// ResolveAccountID resolves an account name to an ID.
 // If name is empty, uses the default from config.
-func (a *App) resolveAccountID(ctx context.Context, name string) (string, error) {
+func (a *App) ResolveAccountID(ctx context.Context, name string) (string, error) {
 	if name == "" {
 		name = a.Config.Defaults.Account
 	}

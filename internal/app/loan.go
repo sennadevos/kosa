@@ -61,7 +61,7 @@ func (a *App) LoanPay(ctx context.Context, in LoanPayInput) (*domain.LoanPayment
 		return nil, nil, fmt.Errorf("loan: %w", err)
 	}
 
-	accountID, err := a.resolveAccountID(ctx, in.Account)
+	accountID, err := a.ResolveAccountID(ctx, in.Account)
 	if err != nil {
 		return nil, nil, err
 	}

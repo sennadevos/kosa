@@ -22,7 +22,7 @@ type SpendInput struct {
 }
 
 func (a *App) Spend(ctx context.Context, in SpendInput) (*domain.Transaction, error) {
-	accountID, err := a.resolveAccountID(ctx, in.Account)
+	accountID, err := a.ResolveAccountID(ctx, in.Account)
 	if err != nil {
 		return nil, err
 	}

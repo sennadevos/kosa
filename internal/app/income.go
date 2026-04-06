@@ -22,7 +22,7 @@ type IncomeInput struct {
 }
 
 func (a *App) Income(ctx context.Context, in IncomeInput) (*domain.Transaction, error) {
-	accountID, err := a.resolveAccountID(ctx, in.Account)
+	accountID, err := a.ResolveAccountID(ctx, in.Account)
 	if err != nil {
 		return nil, err
 	}

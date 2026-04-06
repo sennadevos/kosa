@@ -28,7 +28,7 @@ func (a *App) Refund(ctx context.Context, in RefundInput) (*domain.Transaction, 
 		}
 	}
 
-	accountID, err := a.resolveAccountID(ctx, in.Account)
+	accountID, err := a.ResolveAccountID(ctx, in.Account)
 	if err != nil {
 		return nil, err
 	}

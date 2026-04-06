@@ -17,11 +17,11 @@ type TransferInput struct {
 }
 
 func (a *App) Transfer(ctx context.Context, in TransferInput) (*domain.Transaction, error) {
-	fromID, err := a.resolveAccountID(ctx, in.FromAccount)
+	fromID, err := a.ResolveAccountID(ctx, in.FromAccount)
 	if err != nil {
 		return nil, fmt.Errorf("from account: %w", err)
 	}
-	toID, err := a.resolveAccountID(ctx, in.ToAccount)
+	toID, err := a.ResolveAccountID(ctx, in.ToAccount)
 	if err != nil {
 		return nil, fmt.Errorf("to account: %w", err)
 	}

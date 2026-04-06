@@ -39,6 +39,11 @@ func writeJSON(w io.Writer, v interface{}) {
 	fmt.Fprintln(w, string(data))
 }
 
+// WriteJSONPublic is an exported version of writeJSON for use by CLI commands.
+func WriteJSONPublic(w io.Writer, v interface{}) {
+	writeJSON(w, v)
+}
+
 func padRight(s string, n int) string {
 	if len(s) >= n {
 		return s[:n]

@@ -31,7 +31,7 @@ func (a *App) ListTransactions(ctx context.Context, in ListInput) ([]domain.Tran
 	}
 
 	if in.Account != "" {
-		accID, err := a.resolveAccountID(ctx, in.Account)
+		accID, err := a.ResolveAccountID(ctx, in.Account)
 		if err != nil {
 			return nil, err
 		}

@@ -27,7 +27,7 @@ type SplitResult struct {
 }
 
 func (a *App) Split(ctx context.Context, in SplitInput) (*SplitResult, error) {
-	accountID, err := a.resolveAccountID(ctx, in.Account)
+	accountID, err := a.ResolveAccountID(ctx, in.Account)
 	if err != nil {
 		return nil, err
 	}
