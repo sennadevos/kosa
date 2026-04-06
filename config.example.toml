@@ -1,0 +1,100 @@
+[backend]
+type = "teable"
+
+[backend.teable]
+url = "http://localhost:3000"
+token = "your-personal-access-token"
+
+# table name -> teable table ID
+[backend.teable.tables]
+accounts = "tbl_xxxxxxxx"
+transactions = "tbl_xxxxxxxx"
+recurring_rules = "tbl_xxxxxxxx"
+loans = "tbl_xxxxxxxx"
+loan_payments = "tbl_xxxxxxxx"
+balance_snapshots = "tbl_xxxxxxxx"
+categories = "tbl_xxxxxxxx"
+tags = "tbl_xxxxxxxx"
+
+# field mappings: domain field name -> teable field ID
+[backend.teable.fields.accounts]
+name = "fld_xxxxxxxx"
+type = "fld_xxxxxxxx"
+provider = "fld_xxxxxxxx"
+currency = "fld_xxxxxxxx"
+iban = "fld_xxxxxxxx"
+is_default = "fld_xxxxxxxx"
+notes = "fld_xxxxxxxx"
+
+[backend.teable.fields.transactions]
+date = "fld_xxxxxxxx"
+type = "fld_xxxxxxxx"
+amount = "fld_xxxxxxxx"
+description = "fld_xxxxxxxx"
+category = "fld_xxxxxxxx"
+tags = "fld_xxxxxxxx"
+account = "fld_xxxxxxxx"
+to_account = "fld_xxxxxxxx"
+loan = "fld_xxxxxxxx"
+recurring_rule = "fld_xxxxxxxx"
+refund_of = "fld_xxxxxxxx"
+cashback = "fld_xxxxxxxx"
+reference = "fld_xxxxxxxx"
+foreign_amount = "fld_xxxxxxxx"
+foreign_currency = "fld_xxxxxxxx"
+exchange_rate = "fld_xxxxxxxx"
+notes = "fld_xxxxxxxx"
+
+[backend.teable.fields.recurring_rules]
+name = "fld_xxxxxxxx"
+type = "fld_xxxxxxxx"
+amount = "fld_xxxxxxxx"
+category = "fld_xxxxxxxx"
+tags = "fld_xxxxxxxx"
+account = "fld_xxxxxxxx"
+frequency = "fld_xxxxxxxx"
+day_of_month = "fld_xxxxxxxx"
+start_date = "fld_xxxxxxxx"
+end_date = "fld_xxxxxxxx"
+is_active = "fld_xxxxxxxx"
+notes = "fld_xxxxxxxx"
+
+[backend.teable.fields.loans]
+type = "fld_xxxxxxxx"
+counterparty_name = "fld_xxxxxxxx"
+counterparty_uri = "fld_xxxxxxxx"
+description = "fld_xxxxxxxx"
+original_amount = "fld_xxxxxxxx"
+currency = "fld_xxxxxxxx"
+date_created = "fld_xxxxxxxx"
+due_date = "fld_xxxxxxxx"
+interest_type = "fld_xxxxxxxx"
+interest_rate = "fld_xxxxxxxx"
+interest_period = "fld_xxxxxxxx"
+is_settled = "fld_xxxxxxxx"
+notes = "fld_xxxxxxxx"
+
+[backend.teable.fields.loan_payments]
+loan = "fld_xxxxxxxx"
+date = "fld_xxxxxxxx"
+amount = "fld_xxxxxxxx"
+account = "fld_xxxxxxxx"
+notes = "fld_xxxxxxxx"
+
+[backend.teable.fields.balance_snapshots]
+account = "fld_xxxxxxxx"
+date = "fld_xxxxxxxx"
+balance = "fld_xxxxxxxx"
+source = "fld_xxxxxxxx"
+notes = "fld_xxxxxxxx"
+
+[backend.teable.fields.categories]
+name = "fld_xxxxxxxx"
+type = "fld_xxxxxxxx"
+
+[backend.teable.fields.tags]
+name = "fld_xxxxxxxx"
+
+[defaults]
+account = "ING Checking"
+currency = "EUR"
