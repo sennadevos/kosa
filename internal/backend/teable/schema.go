@@ -47,6 +47,20 @@ type SelectChoice struct {
 	Color string `json:"color,omitempty"`
 }
 
+// ListFields returns all fields on a table.
+func (c *Client) ListFields(ctx context.Context, tableID string) ([]FieldResult, error) {
+	path := fmt.Sprintf("/api/table/%s/field", tableID)
+	data, err := c.doRequest(ctx, "GET", path, nil)
+	if err != nil {
+		return nil, err
+	}
+	var fields []FieldResult
+	if err := json.Unmarshal(data, &fields); err != nil {
+		return nil, fmt.Errorf("decode field list: %w", err)
+	}
+	return fields, nil
+}
+
 // CreateTable creates a new table in a base, optionally with inline fields.
 func (c *Client) CreateTable(ctx context.Context, baseID string, req CreateTableRequest) (*CreateTableResponse, error) {
 	path := fmt.Sprintf("/api/base/%s/table", baseID)
