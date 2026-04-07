@@ -36,9 +36,13 @@ type StandaloneFieldRequest struct {
 	Options interface{} `json:"options,omitempty"`
 }
 
-// UpdateFieldRequest is used for PATCH on an existing field.
-type UpdateFieldRequest struct {
-	NotNull *bool `json:"notNull,omitempty"`
+// ConvertFieldRequest is used for PUT /convert to change field constraints.
+// Must include the field's type (and options if applicable).
+type ConvertFieldRequest struct {
+	Type    string      `json:"type"`
+	NotNull *bool       `json:"notNull,omitempty"`
+	Unique  *bool       `json:"unique,omitempty"`
+	Options interface{} `json:"options,omitempty"`
 }
 
 type FieldResult struct {
@@ -105,9 +109,10 @@ func (c *Client) CreateField(ctx context.Context, tableID string, req Standalone
 	return &resp, nil
 }
 
-// UpdateField updates properties of an existing field (e.g., setting notNull).
-func (c *Client) UpdateField(ctx context.Context, tableID, fieldID string, req UpdateFieldRequest) error {
-	path := fmt.Sprintf("/api/table/%s/field/%s", tableID, fieldID)
-	_, err := c.doRequest(ctx, "PATCH", path, req)
+// ConvertField uses PUT /convert to change field constraints like notNull.
+// The standard PATCH endpoint does not support notNull — only convert does.
+func (c *Client) ConvertField(ctx context.Context, tableID, fieldID string, req ConvertFieldRequest) error {
+	path := fmt.Sprintf("/api/table/%s/field/%s/convert", tableID, fieldID)
+	_, err := c.doRequest(ctx, "PUT", path, req)
 	return err
 }

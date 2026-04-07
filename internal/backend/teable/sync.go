@@ -76,11 +76,13 @@ func SchemaSync(ctx context.Context, client *Client, tables map[string]string) (
 				return nil, fmt.Errorf("creating field %s.%s: %w", tableKey, fieldDef.Name, err)
 			}
 
-			// set notNull if required
+			// set notNull if required (via convert endpoint)
 			if fieldDef.NotNull {
 				notNull := true
-				if err := client.UpdateField(ctx, tableID, created.ID, UpdateFieldRequest{
+				if err := client.ConvertField(ctx, tableID, created.ID, ConvertFieldRequest{
+					Type:    fieldDef.Type,
 					NotNull: &notNull,
+					Options: fieldDef.Options,
 				}); err != nil {
 					return nil, fmt.Errorf("setting notNull on %s.%s: %w", tableKey, fieldDef.Name, err)
 				}

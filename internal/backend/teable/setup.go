@@ -103,6 +103,12 @@ func createTableFromDef(ctx context.Context, client *Client, baseID, tableKey st
 		saveField(result, tableKey, f.Name, f.ID)
 	}
 
+	// delete default empty rows that Teable creates with every new table
+	defaultRecords, _ := client.ListRecords(ctx, resp.ID, "", "", 0)
+	for _, r := range defaultRecords {
+		client.DeleteRecord(ctx, resp.ID, r.ID)
+	}
+
 	// create link fields where the target table already exists
 	for _, link := range def.LinkFields {
 		foreignID, ok := result.Tables[link.ForeignTable]
@@ -157,7 +163,7 @@ func createMissingLinks(ctx context.Context, client *Client, tableKey string, de
 	return nil
 }
 
-// setRequiredFields PATCHes notNull: true on fields that are marked as required.
+// setRequiredFields uses PUT /convert to set notNull: true on required fields.
 func setRequiredFields(ctx context.Context, client *Client, tableKey string, def TableDef, result *SetupResult) error {
 	tableID := result.Tables[tableKey]
 	notNull := true
@@ -170,8 +176,10 @@ func setRequiredFields(ctx context.Context, client *Client, tableKey string, def
 		if !ok {
 			continue
 		}
-		if err := client.UpdateField(ctx, tableID, fieldID, UpdateFieldRequest{
+		if err := client.ConvertField(ctx, tableID, fieldID, ConvertFieldRequest{
+			Type:    f.Type,
 			NotNull: &notNull,
+			Options: f.Options,
 		}); err != nil {
 			return fmt.Errorf("setting notNull on %s: %w", f.Name, err)
 		}
