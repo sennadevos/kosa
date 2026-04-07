@@ -19,13 +19,14 @@ package teable
 //   - Select choice additions are not yet synced — add them in the UI
 
 // FieldDef describes a field that should exist on a table.
-// NotNull marks the field as required in Teable. This is set via a
-// separate PATCH after field creation, since Teable's inline table
-// creation does not support notNull.
+// NotNull marks the field as required in Teable. Unique adds a uniqueness
+// constraint. Both are set via PUT /convert after field creation, since
+// Teable's inline table creation does not support these constraints.
 type FieldDef struct {
 	Name    string
 	Type    string
 	NotNull bool
+	Unique  bool
 	Options interface{} // nil, SelectFieldOptions, or LinkFieldOptions
 }
 
@@ -53,7 +54,7 @@ func ExpectedSchema() map[string]TableDef {
 		"categories": {
 			Name: "Categories",
 			Fields: []FieldDef{
-				{Name: "name", Type: "singleLineText", NotNull: true},
+				{Name: "name", Type: "singleLineText", NotNull: true, Unique: true},
 				{Name: "type", Type: "singleSelect", NotNull: true, Options: SelectFieldOptions{
 					Choices: []SelectChoice{
 						{Name: "income"}, {Name: "expense"}, {Name: "neutral"},
@@ -64,13 +65,13 @@ func ExpectedSchema() map[string]TableDef {
 		"tags": {
 			Name: "Tags",
 			Fields: []FieldDef{
-				{Name: "name", Type: "singleLineText", NotNull: true},
+				{Name: "name", Type: "singleLineText", NotNull: true, Unique: true},
 			},
 		},
 		"accounts": {
 			Name: "Accounts",
 			Fields: []FieldDef{
-				{Name: "name", Type: "singleLineText", NotNull: true},
+				{Name: "name", Type: "singleLineText", NotNull: true, Unique: true},
 				{Name: "type", Type: "singleSelect", NotNull: true, Options: SelectFieldOptions{
 					Choices: []SelectChoice{
 						{Name: "checking"}, {Name: "savings"}, {Name: "investment"},

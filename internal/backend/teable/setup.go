@@ -63,7 +63,7 @@ func Setup(ctx context.Context, client *Client, baseID string) (*SetupResult, er
 	for _, phase := range phases {
 		for _, tableKey := range phase {
 			def := schema[tableKey]
-			if err := setRequiredFields(ctx, client, tableKey, def, result); err != nil {
+			if err := setFieldConstraints(ctx, client, tableKey, def, result); err != nil {
 				return nil, fmt.Errorf("%s required: %w", tableKey, err)
 			}
 		}
@@ -163,25 +163,34 @@ func createMissingLinks(ctx context.Context, client *Client, tableKey string, de
 	return nil
 }
 
-// setRequiredFields uses PUT /convert to set notNull: true on required fields.
-func setRequiredFields(ctx context.Context, client *Client, tableKey string, def TableDef, result *SetupResult) error {
+// setFieldConstraints uses PUT /convert to set notNull and unique on fields.
+func setFieldConstraints(ctx context.Context, client *Client, tableKey string, def TableDef, result *SetupResult) error {
 	tableID := result.Tables[tableKey]
-	notNull := true
 
 	for _, f := range def.Fields {
-		if !f.NotNull {
+		if !f.NotNull && !f.Unique {
 			continue
 		}
 		fieldID, ok := result.Fields[tableKey][f.Name]
 		if !ok {
 			continue
 		}
-		if err := client.ConvertField(ctx, tableID, fieldID, ConvertFieldRequest{
+
+		req := ConvertFieldRequest{
 			Type:    f.Type,
-			NotNull: &notNull,
 			Options: f.Options,
-		}); err != nil {
-			return fmt.Errorf("setting notNull on %s: %w", f.Name, err)
+		}
+		if f.NotNull {
+			v := true
+			req.NotNull = &v
+		}
+		if f.Unique {
+			v := true
+			req.Unique = &v
+		}
+
+		if err := client.ConvertField(ctx, tableID, fieldID, req); err != nil {
+			return fmt.Errorf("setting constraints on %s: %w", f.Name, err)
 		}
 	}
 	return nil
