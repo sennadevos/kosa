@@ -22,7 +22,6 @@ type CreateTableResponse struct {
 type CreateFieldRequest struct {
 	Name    string      `json:"name"`
 	Type    string      `json:"type"`
-	NotNull bool        `json:"notNull,omitempty"`
 	Options interface{} `json:"options,omitempty"`
 }
 

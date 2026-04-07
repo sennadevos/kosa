@@ -19,10 +19,11 @@ package teable
 //   - Select choice additions are not yet synced — add them in the UI
 
 // FieldDef describes a field that should exist on a table.
+// Required-field enforcement is handled at the application layer (CLI
+// validation), not in Teable — its API does not support notNull constraints.
 type FieldDef struct {
 	Name    string
 	Type    string
-	NotNull bool
 	Options interface{} // nil, SelectFieldOptions, or LinkFieldOptions
 }
 
@@ -50,8 +51,8 @@ func ExpectedSchema() map[string]TableDef {
 		"categories": {
 			Name: "Categories",
 			Fields: []FieldDef{
-				{Name: "name", Type: "singleLineText", NotNull: true},
-				{Name: "type", Type: "singleSelect", NotNull: true, Options: SelectFieldOptions{
+				{Name: "name", Type: "singleLineText"},
+				{Name: "type", Type: "singleSelect", Options: SelectFieldOptions{
 					Choices: []SelectChoice{
 						{Name: "income"}, {Name: "expense"}, {Name: "neutral"},
 					},
@@ -61,14 +62,14 @@ func ExpectedSchema() map[string]TableDef {
 		"tags": {
 			Name: "Tags",
 			Fields: []FieldDef{
-				{Name: "name", Type: "singleLineText", NotNull: true},
+				{Name: "name", Type: "singleLineText"},
 			},
 		},
 		"accounts": {
 			Name: "Accounts",
 			Fields: []FieldDef{
-				{Name: "name", Type: "singleLineText", NotNull: true},
-				{Name: "type", Type: "singleSelect", NotNull: true, Options: SelectFieldOptions{
+				{Name: "name", Type: "singleLineText"},
+				{Name: "type", Type: "singleSelect", Options: SelectFieldOptions{
 					Choices: []SelectChoice{
 						{Name: "checking"}, {Name: "savings"}, {Name: "investment"},
 						{Name: "credit_card"}, {Name: "cash"},
@@ -83,14 +84,14 @@ func ExpectedSchema() map[string]TableDef {
 		"transactions": {
 			Name: "Transactions",
 			Fields: []FieldDef{
-				{Name: "date", Type: "date", NotNull: true},
-				{Name: "type", Type: "singleSelect", NotNull: true, Options: SelectFieldOptions{
+				{Name: "date", Type: "date"},
+				{Name: "type", Type: "singleSelect", Options: SelectFieldOptions{
 					Choices: []SelectChoice{
 						{Name: "income"}, {Name: "expense"}, {Name: "transfer"}, {Name: "refund"},
 					},
 				}},
-				{Name: "amount", Type: "number", NotNull: true},
-				{Name: "description", Type: "singleLineText", NotNull: true},
+				{Name: "amount", Type: "number"},
+				{Name: "description", Type: "singleLineText"},
 				{Name: "cashback", Type: "number"},
 				{Name: "reference", Type: "singleLineText"},
 				{Name: "foreign_amount", Type: "number"},
@@ -111,19 +112,19 @@ func ExpectedSchema() map[string]TableDef {
 		"recurring_rules": {
 			Name: "Recurring Rules",
 			Fields: []FieldDef{
-				{Name: "name", Type: "singleLineText", NotNull: true},
-				{Name: "type", Type: "singleSelect", NotNull: true, Options: SelectFieldOptions{
+				{Name: "name", Type: "singleLineText"},
+				{Name: "type", Type: "singleSelect", Options: SelectFieldOptions{
 					Choices: []SelectChoice{{Name: "income"}, {Name: "expense"}},
 				}},
-				{Name: "amount", Type: "number", NotNull: true},
-				{Name: "frequency", Type: "singleSelect", NotNull: true, Options: SelectFieldOptions{
+				{Name: "amount", Type: "number"},
+				{Name: "frequency", Type: "singleSelect", Options: SelectFieldOptions{
 					Choices: []SelectChoice{
 						{Name: "daily"}, {Name: "weekly"}, {Name: "biweekly"},
 						{Name: "monthly"}, {Name: "quarterly"}, {Name: "yearly"},
 					},
 				}},
 				{Name: "day_of_month", Type: "number"},
-				{Name: "start_date", Type: "date", NotNull: true},
+				{Name: "start_date", Type: "date"},
 				{Name: "end_date", Type: "date"},
 				{Name: "is_active", Type: "checkbox"},
 				{Name: "notes", Type: "longText"},
@@ -137,13 +138,13 @@ func ExpectedSchema() map[string]TableDef {
 		"loans": {
 			Name: "Loans",
 			Fields: []FieldDef{
-				{Name: "type", Type: "singleSelect", NotNull: true, Options: SelectFieldOptions{
+				{Name: "type", Type: "singleSelect", Options: SelectFieldOptions{
 					Choices: []SelectChoice{{Name: "payable"}, {Name: "receivable"}},
 				}},
-				{Name: "counterparty_name", Type: "singleLineText", NotNull: true},
+				{Name: "counterparty_name", Type: "singleLineText"},
 				{Name: "counterparty_uri", Type: "singleLineText"},
-				{Name: "description", Type: "singleLineText", NotNull: true},
-				{Name: "original_amount", Type: "number", NotNull: true},
+				{Name: "description", Type: "singleLineText"},
+				{Name: "original_amount", Type: "number"},
 				{Name: "currency", Type: "singleLineText"},
 				{Name: "date_created", Type: "date"},
 				{Name: "due_date", Type: "date"},
@@ -163,8 +164,8 @@ func ExpectedSchema() map[string]TableDef {
 		"loan_payments": {
 			Name: "Loan Payments",
 			Fields: []FieldDef{
-				{Name: "date", Type: "date", NotNull: true},
-				{Name: "amount", Type: "number", NotNull: true},
+				{Name: "date", Type: "date"},
+				{Name: "amount", Type: "number"},
 				{Name: "notes", Type: "longText"},
 			},
 			LinkFields: []LinkFieldDef{
@@ -175,8 +176,8 @@ func ExpectedSchema() map[string]TableDef {
 		"balance_snapshots": {
 			Name: "Balance Snapshots",
 			Fields: []FieldDef{
-				{Name: "date", Type: "date", NotNull: true},
-				{Name: "balance", Type: "number", NotNull: true},
+				{Name: "date", Type: "date"},
+				{Name: "balance", Type: "number"},
 				{Name: "source", Type: "singleSelect", Options: SelectFieldOptions{
 					Choices: []SelectChoice{
 						{Name: "manual"}, {Name: "bank_import"}, {Name: "reconciliation"},

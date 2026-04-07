@@ -72,7 +72,6 @@ func createTableFromDef(ctx context.Context, client *Client, baseID, tableKey st
 		fields = append(fields, CreateFieldRequest{
 			Name:    f.Name,
 			Type:    f.Type,
-			NotNull: f.NotNull,
 			Options: f.Options,
 		})
 	}

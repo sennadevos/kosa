@@ -70,7 +70,6 @@ func SchemaSync(ctx context.Context, client *Client, tables map[string]string) (
 			req := CreateFieldRequest{
 				Name:    fieldDef.Name,
 				Type:    fieldDef.Type,
-				NotNull: fieldDef.NotNull,
 				Options: fieldDef.Options,
 			}
 			created, err := client.CreateField(ctx, tableID, req)
@@ -82,7 +81,7 @@ func SchemaSync(ctx context.Context, client *Client, tables map[string]string) (
 				Table:   tableKey,
 				Field:   fieldDef.Name,
 				Action:  "create_field",
-				Details: fmt.Sprintf("type=%s notNull=%v", fieldDef.Type, fieldDef.NotNull),
+				Details: fmt.Sprintf("type=%s", fieldDef.Type),
 				FieldID: created.ID,
 			})
 		}

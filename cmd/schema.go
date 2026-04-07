@@ -142,7 +142,7 @@ func printDryRun(ctx context.Context, client *teable.Client, cfg *config.Config)
 		missing := 0
 		for _, f := range tableDef.Fields {
 			if !existingNames[f.Name] {
-				fmt.Printf("  + %s.%s (type=%s notNull=%v)\n", tableKey, f.Name, f.Type, f.NotNull)
+				fmt.Printf("  + %s.%s (type=%s)\n", tableKey, f.Name, f.Type)
 				missing++
 			}
 		}
