@@ -9,7 +9,7 @@ import (
 type SyncAction struct {
 	Table   string
 	Field   string
-	Action  string // "create_field", "create_link", "skip_exists"
+	Action  string // "create_field", "create_link", "update_constraints", "skip_ok"
 	Details string
 	FieldID string // populated after applying
 }
@@ -56,13 +56,51 @@ func SchemaSync(ctx context.Context, client *Client, tables map[string]string) (
 
 		// check regular fields
 		for _, fieldDef := range tableDef.Fields {
-			if _, exists := existingByName[fieldDef.Name]; exists {
-				result.Actions = append(result.Actions, SyncAction{
-					Table:   tableKey,
-					Field:   fieldDef.Name,
-					Action:  "skip_exists",
-					Details: "already exists",
-				})
+			if existing, exists := existingByName[fieldDef.Name]; exists {
+				// field exists — check if constraints need updating
+				needsUpdate := false
+				var changes []string
+
+				if fieldDef.NotNull && !existing.NotNull {
+					needsUpdate = true
+					changes = append(changes, "notNull: false→true")
+				}
+				if fieldDef.Unique && !existing.Unique {
+					needsUpdate = true
+					changes = append(changes, "unique: false→true")
+				}
+
+				if needsUpdate {
+					req := ConvertFieldRequest{
+						Type:    fieldDef.Type,
+						Options: fieldDef.Options,
+					}
+					if fieldDef.NotNull {
+						v := true
+						req.NotNull = &v
+					}
+					if fieldDef.Unique {
+						v := true
+						req.Unique = &v
+					}
+					if err := client.ConvertField(ctx, tableID, existing.ID, req); err != nil {
+						return nil, fmt.Errorf("updating constraints on %s.%s: %w", tableKey, fieldDef.Name, err)
+					}
+					result.Actions = append(result.Actions, SyncAction{
+						Table:   tableKey,
+						Field:   fieldDef.Name,
+						Action:  "update_constraints",
+						Details: fmt.Sprintf("%v", changes),
+						FieldID: existing.ID,
+					})
+				} else {
+					result.Actions = append(result.Actions, SyncAction{
+						Table:   tableKey,
+						Field:   fieldDef.Name,
+						Action:  "skip_ok",
+						Details: "up to date",
+					})
+				}
 				continue
 			}
 

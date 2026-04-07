@@ -46,9 +46,11 @@ type ConvertFieldRequest struct {
 }
 
 type FieldResult struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-	Type string `json:"type"`
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Type    string `json:"type"`
+	NotNull bool   `json:"notNull"`
+	Unique  bool   `json:"unique"`
 }
 
 type LinkFieldOptions struct {

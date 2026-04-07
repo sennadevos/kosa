@@ -73,20 +73,24 @@ Limitations:
 		}
 
 		created := 0
+		updated := 0
 		skipped := 0
 		for _, a := range result.Actions {
 			switch a.Action {
 			case "create_field", "create_link":
 				created++
 				fmt.Printf("  + %s.%s — %s (id: %s)\n", a.Table, a.Field, a.Details, a.FieldID)
-			case "skip_exists":
+			case "update_constraints":
+				updated++
+				fmt.Printf("  ~ %s.%s — %s\n", a.Table, a.Field, a.Details)
+			case "skip_ok":
 				skipped++
 			}
 		}
 
-		fmt.Printf("\n%d fields created, %d already existed\n", created, skipped)
+		fmt.Printf("\n%d created, %d updated, %d up to date\n", created, updated, skipped)
 
-		if created > 0 {
+		if created > 0 || updated > 0 {
 			// update config with new field IDs
 			for _, a := range result.Actions {
 				if a.FieldID == "" {
@@ -134,26 +138,36 @@ func printDryRun(ctx context.Context, client *teable.Client, cfg *config.Config)
 			continue
 		}
 
-		existingNames := make(map[string]bool, len(existing))
+		existingByName := make(map[string]teable.FieldResult, len(existing))
 		for _, f := range existing {
-			existingNames[f.Name] = true
+			existingByName[f.Name] = f
 		}
 
-		missing := 0
+		changes := 0
 		for _, f := range tableDef.Fields {
-			if !existingNames[f.Name] {
+			if ef, exists := existingByName[f.Name]; exists {
+				// check constraint mismatches
+				if f.NotNull && !ef.NotNull {
+					fmt.Printf("  ~ %s.%s: notNull false→true\n", tableKey, f.Name)
+					changes++
+				}
+				if f.Unique && !ef.Unique {
+					fmt.Printf("  ~ %s.%s: unique false→true\n", tableKey, f.Name)
+					changes++
+				}
+			} else {
 				fmt.Printf("  + %s.%s (type=%s)\n", tableKey, f.Name, f.Type)
-				missing++
+				changes++
 			}
 		}
 		for _, l := range tableDef.LinkFields {
-			if !existingNames[l.Name] {
+			if _, exists := existingByName[l.Name]; !exists {
 				fmt.Printf("  + %s.%s (link -> %s, %s)\n", tableKey, l.Name, l.ForeignTable, l.Relationship)
-				missing++
+				changes++
 			}
 		}
 
-		if missing == 0 {
+		if changes == 0 {
 			fmt.Printf("  %s: up to date\n", tableKey)
 		}
 	}
@@ -200,35 +214,41 @@ var schemaStatusCmd = &cobra.Command{
 				continue
 			}
 
-			existingNames := make(map[string]bool, len(existing))
+			existingByName := make(map[string]teable.FieldResult, len(existing))
 			for _, f := range existing {
-				existingNames[f.Name] = true
+				existingByName[f.Name] = f
 			}
 
 			totalExpected := len(tableDef.Fields) + len(tableDef.LinkFields)
 			present := 0
-			var missingNames []string
+			var issues []string
 
 			for _, f := range tableDef.Fields {
-				if existingNames[f.Name] {
+				if ef, exists := existingByName[f.Name]; exists {
 					present++
+					if f.NotNull && !ef.NotNull {
+						issues = append(issues, f.Name+" (notNull missing)")
+					}
+					if f.Unique && !ef.Unique {
+						issues = append(issues, f.Name+" (unique missing)")
+					}
 				} else {
-					missingNames = append(missingNames, f.Name)
+					issues = append(issues, f.Name+" (missing)")
 				}
 			}
 			for _, l := range tableDef.LinkFields {
-				if existingNames[l.Name] {
+				if _, exists := existingByName[l.Name]; exists {
 					present++
 				} else {
-					missingNames = append(missingNames, l.Name)
+					issues = append(issues, l.Name+" (missing)")
 				}
 			}
 
-			if len(missingNames) == 0 {
+			if len(issues) == 0 {
 				fmt.Printf("%s: ok (%d/%d fields)\n", tableKey, present, totalExpected)
 			} else {
-				fmt.Printf("%s: %d/%d fields, missing: %s\n",
-					tableKey, present, totalExpected, strings.Join(missingNames, ", "))
+				fmt.Printf("%s: %d/%d fields, issues: %s\n",
+					tableKey, present, totalExpected, strings.Join(issues, ", "))
 			}
 		}
 
