@@ -12,7 +12,7 @@ import (
 func testApp() (*App, *mock.Backend) {
 	b := mock.New()
 	b.SeedAccount(domain.Account{
-		ID: "acc_1", Name: "ING Checking", Type: domain.AccountChecking, IsDefault: true,
+		ID: "acc_1", Name: "ING Checking", Type: domain.AccountChecking,
 	})
 	b.SeedCategory(domain.Category{ID: "cat_1", Name: "groceries", Type: domain.CategoryExpense})
 	b.SeedCategory(domain.Category{ID: "cat_2", Name: "salary", Type: domain.CategoryIncome})

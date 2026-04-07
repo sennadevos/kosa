@@ -69,8 +69,7 @@ func (b *Backend) CreateAccount(_ context.Context, a domain.AccountInput) (*doma
 		Provider:  a.Provider,
 		Currency:  a.Currency,
 		IBAN:      a.IBAN,
-		IsDefault: a.IsDefault,
-		Notes:     a.Notes,
+		Notes: a.Notes,
 	}
 	b.accounts = append(b.accounts, acc)
 	return &acc, nil
@@ -86,7 +85,6 @@ func (b *Backend) UpdateAccount(_ context.Context, id string, a domain.AccountIn
 			b.accounts[i].Provider = a.Provider
 			b.accounts[i].Currency = a.Currency
 			b.accounts[i].IBAN = a.IBAN
-			b.accounts[i].IsDefault = a.IsDefault
 			b.accounts[i].Notes = a.Notes
 			return &b.accounts[i], nil
 		}

@@ -11,24 +11,22 @@ const (
 )
 
 type Account struct {
-	ID        string
-	Name      string
-	Type      AccountType
-	Provider  string
-	Currency  string
-	IBAN      string
-	IsDefault bool
-	Notes     string
+	ID       string
+	Name     string
+	Type     AccountType
+	Provider string
+	Currency string
+	IBAN     string
+	Notes    string
 }
 
 type AccountInput struct {
-	Name      string
-	Type      AccountType
-	Provider  string
-	Currency  string
-	IBAN      string
-	IsDefault bool
-	Notes     string
+	Name     string
+	Type     AccountType
+	Provider string
+	Currency string
+	IBAN     string
+	Notes    string
 }
 
 type AccountFilter struct {

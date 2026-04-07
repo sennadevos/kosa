@@ -23,7 +23,6 @@ type = "fld_xxxxxxxx"
 provider = "fld_xxxxxxxx"
 currency = "fld_xxxxxxxx"
 iban = "fld_xxxxxxxx"
-is_default = "fld_xxxxxxxx"
 notes = "fld_xxxxxxxx"
 
 [backend.teable.fields.transactions]

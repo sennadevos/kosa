@@ -30,7 +30,6 @@ Anywhere money lives — bank accounts, savings, investment accounts, credit car
 | provider   | text   | no       | "ING", "ABN AMRO", "Trading 212", etc.           |
 | currency   | text   | no       | EUR (default), USD, etc.                         |
 | iban       | text   | no       | IBAN or account number                           |
-| is_default | bool   | no       | Primary account for quick-entry commands         |
 | notes      | text   | no       |                                                  |
 
 Note: no `balance` field. Balance is derived from BalanceSnapshots + Transactions. See [balance-tracking.md](balance-tracking.md).
@@ -60,7 +59,7 @@ Every actual money movement. Amounts are always positive — the `type` field de
 | description      | text   | yes      | "Albert Heijn", "Salary", etc.                   |
 | category         | link   | no       | → Categories (one per transaction)               |
 | tags             | link[] | no       | → Tags (many-to-many)                            |
-| account          | link   | no       | → Accounts (defaults to is_default account)      |
+| account          | link   | no       | → Accounts (defaults to configured default account)      |
 | to_account       | link   | no       | → Accounts (for transfers between accounts)      |
 | loan             | link   | no       | → Loans (marks this as a loan movement)          |
 | recurring_rule   | link   | no       | → RecurringRules (which rule this fulfills)      |

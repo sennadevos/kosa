@@ -227,13 +227,12 @@ func mapFieldsToAccount(raw map[string]interface{}, fm FieldMap) domain.Account 
 		}
 	}
 	return domain.Account{
-		Name:      getString(f, "name"),
-		Type:      domain.AccountType(getString(f, "type")),
-		Provider:  getString(f, "provider"),
-		Currency:  getString(f, "currency"),
-		IBAN:      getString(f, "iban"),
-		IsDefault: getBool(f, "is_default"),
-		Notes:     getString(f, "notes"),
+		Name:     getString(f, "name"),
+		Type:     domain.AccountType(getString(f, "type")),
+		Provider: getString(f, "provider"),
+		Currency: getString(f, "currency"),
+		IBAN:     getString(f, "iban"),
+		Notes:    getString(f, "notes"),
 	}
 }
 
@@ -244,9 +243,6 @@ func mapAccountToFields(a domain.AccountInput, fm FieldMap) map[string]interface
 	setIfNotZero(fields, fm["provider"], a.Provider)
 	setIfNotZero(fields, fm["currency"], a.Currency)
 	setIfNotZero(fields, fm["iban"], a.IBAN)
-	if a.IsDefault {
-		fields[fm["is_default"]] = true
-	}
 	setIfNotZero(fields, fm["notes"], a.Notes)
 	return fields
 }

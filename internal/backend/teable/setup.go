@@ -68,8 +68,8 @@ func createCategories(ctx context.Context, client *Client, baseID string, result
 	resp, err := client.CreateTable(ctx, baseID, CreateTableRequest{
 		Name: "Categories",
 		Fields: []CreateFieldRequest{
-			{Name: "name", Type: "singleLineText"},
-			{Name: "type", Type: "singleSelect", Options: SelectFieldOptions{
+			{Name: "name", Type: "singleLineText", NotNull: true},
+			{Name: "type", Type: "singleSelect", NotNull: true, Options: SelectFieldOptions{
 				Choices: []SelectChoice{
 					{Name: "income"}, {Name: "expense"}, {Name: "neutral"},
 				},
@@ -90,7 +90,7 @@ func createTags(ctx context.Context, client *Client, baseID string, result *Setu
 	resp, err := client.CreateTable(ctx, baseID, CreateTableRequest{
 		Name: "Tags",
 		Fields: []CreateFieldRequest{
-			{Name: "name", Type: "singleLineText"},
+			{Name: "name", Type: "singleLineText", NotNull: true},
 		},
 	})
 	if err != nil {
@@ -107,8 +107,8 @@ func createAccounts(ctx context.Context, client *Client, baseID string, result *
 	resp, err := client.CreateTable(ctx, baseID, CreateTableRequest{
 		Name: "Accounts",
 		Fields: []CreateFieldRequest{
-			{Name: "name", Type: "singleLineText"},
-			{Name: "type", Type: "singleSelect", Options: SelectFieldOptions{
+			{Name: "name", Type: "singleLineText", NotNull: true},
+			{Name: "type", Type: "singleSelect", NotNull: true, Options: SelectFieldOptions{
 				Choices: []SelectChoice{
 					{Name: "checking"}, {Name: "savings"}, {Name: "investment"},
 					{Name: "credit_card"}, {Name: "cash"},
@@ -117,7 +117,6 @@ func createAccounts(ctx context.Context, client *Client, baseID string, result *
 			{Name: "provider", Type: "singleLineText"},
 			{Name: "currency", Type: "singleLineText"},
 			{Name: "iban", Type: "singleLineText"},
-			{Name: "is_default", Type: "checkbox"},
 			{Name: "notes", Type: "longText"},
 		},
 	})
@@ -136,14 +135,14 @@ func createTransactions(ctx context.Context, client *Client, baseID string, resu
 	resp, err := client.CreateTable(ctx, baseID, CreateTableRequest{
 		Name: "Transactions",
 		Fields: []CreateFieldRequest{
-			{Name: "date", Type: "date"},
-			{Name: "type", Type: "singleSelect", Options: SelectFieldOptions{
+			{Name: "date", Type: "date", NotNull: true},
+			{Name: "type", Type: "singleSelect", NotNull: true, Options: SelectFieldOptions{
 				Choices: []SelectChoice{
 					{Name: "income"}, {Name: "expense"}, {Name: "transfer"}, {Name: "refund"},
 				},
 			}},
-			{Name: "amount", Type: "number"},
-			{Name: "description", Type: "singleLineText"},
+			{Name: "amount", Type: "number", NotNull: true},
+			{Name: "description", Type: "singleLineText", NotNull: true},
 			{Name: "cashback", Type: "number"},
 			{Name: "reference", Type: "singleLineText"},
 			{Name: "foreign_amount", Type: "number"},
@@ -193,19 +192,19 @@ func createRecurringRules(ctx context.Context, client *Client, baseID string, re
 	resp, err := client.CreateTable(ctx, baseID, CreateTableRequest{
 		Name: "Recurring Rules",
 		Fields: []CreateFieldRequest{
-			{Name: "name", Type: "singleLineText"},
-			{Name: "type", Type: "singleSelect", Options: SelectFieldOptions{
+			{Name: "name", Type: "singleLineText", NotNull: true},
+			{Name: "type", Type: "singleSelect", NotNull: true, Options: SelectFieldOptions{
 				Choices: []SelectChoice{{Name: "income"}, {Name: "expense"}},
 			}},
-			{Name: "amount", Type: "number"},
-			{Name: "frequency", Type: "singleSelect", Options: SelectFieldOptions{
+			{Name: "amount", Type: "number", NotNull: true},
+			{Name: "frequency", Type: "singleSelect", NotNull: true, Options: SelectFieldOptions{
 				Choices: []SelectChoice{
 					{Name: "daily"}, {Name: "weekly"}, {Name: "biweekly"},
 					{Name: "monthly"}, {Name: "quarterly"}, {Name: "yearly"},
 				},
 			}},
 			{Name: "day_of_month", Type: "number"},
-			{Name: "start_date", Type: "date"},
+			{Name: "start_date", Type: "date", NotNull: true},
 			{Name: "end_date", Type: "date"},
 			{Name: "is_active", Type: "checkbox"},
 			{Name: "notes", Type: "longText"},
@@ -251,13 +250,13 @@ func createLoans(ctx context.Context, client *Client, baseID string, result *Set
 	resp, err := client.CreateTable(ctx, baseID, CreateTableRequest{
 		Name: "Loans",
 		Fields: []CreateFieldRequest{
-			{Name: "type", Type: "singleSelect", Options: SelectFieldOptions{
+			{Name: "type", Type: "singleSelect", NotNull: true, Options: SelectFieldOptions{
 				Choices: []SelectChoice{{Name: "payable"}, {Name: "receivable"}},
 			}},
-			{Name: "counterparty_name", Type: "singleLineText"},
+			{Name: "counterparty_name", Type: "singleLineText", NotNull: true},
 			{Name: "counterparty_uri", Type: "singleLineText"},
-			{Name: "description", Type: "singleLineText"},
-			{Name: "original_amount", Type: "number"},
+			{Name: "description", Type: "singleLineText", NotNull: true},
+			{Name: "original_amount", Type: "number", NotNull: true},
 			{Name: "currency", Type: "singleLineText"},
 			{Name: "date_created", Type: "date"},
 			{Name: "due_date", Type: "date"},
@@ -288,8 +287,8 @@ func createBalanceSnapshots(ctx context.Context, client *Client, baseID string, 
 	resp, err := client.CreateTable(ctx, baseID, CreateTableRequest{
 		Name: "Balance Snapshots",
 		Fields: []CreateFieldRequest{
-			{Name: "date", Type: "date"},
-			{Name: "balance", Type: "number"},
+			{Name: "date", Type: "date", NotNull: true},
+			{Name: "balance", Type: "number", NotNull: true},
 			{Name: "source", Type: "singleSelect", Options: SelectFieldOptions{
 				Choices: []SelectChoice{
 					{Name: "manual"}, {Name: "bank_import"}, {Name: "reconciliation"},
@@ -327,8 +326,8 @@ func createLoanPayments(ctx context.Context, client *Client, baseID string, resu
 	resp, err := client.CreateTable(ctx, baseID, CreateTableRequest{
 		Name: "Loan Payments",
 		Fields: []CreateFieldRequest{
-			{Name: "date", Type: "date"},
-			{Name: "amount", Type: "number"},
+			{Name: "date", Type: "date", NotNull: true},
+			{Name: "amount", Type: "number", NotNull: true},
 			{Name: "notes", Type: "longText"},
 		},
 	})
