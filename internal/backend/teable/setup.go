@@ -14,6 +14,10 @@ type SetupResult struct {
 // Setup creates all kosa tables and fields in a Teable base.
 // It reads the expected schema from ExpectedSchema() and creates tables
 // in dependency order so link fields can reference each other.
+//
+// Fields are created without notNull (Teable doesn't support it during
+// inline table creation), then required fields are updated via PATCH
+// to set notNull afterward.
 func Setup(ctx context.Context, client *Client, baseID string) (*SetupResult, error) {
 	schema := ExpectedSchema()
 	result := &SetupResult{
@@ -26,6 +30,7 @@ func Setup(ctx context.Context, client *Client, baseID string) (*SetupResult, er
 	// Phase 2: tables that link to phase 1 tables
 	// Phase 3: tables that link to phase 2 tables
 	// Phase 4: add remaining link fields (cross-references between phase 2+ tables)
+	// Phase 5: set notNull on required fields
 	phases := [][]string{
 		{"categories", "tags", "accounts"},           // no dependencies
 		{"transactions", "recurring_rules", "loans"}, // link to phase 1
@@ -45,12 +50,21 @@ func Setup(ctx context.Context, client *Client, baseID string) (*SetupResult, er
 	}
 
 	// Phase 4: create link fields that couldn't be created during table creation
-	// because the target table didn't exist yet. Re-check all tables for missing links.
 	for _, phase := range phases {
 		for _, tableKey := range phase {
 			def := schema[tableKey]
 			if err := createMissingLinks(ctx, client, tableKey, def, result); err != nil {
 				return nil, fmt.Errorf("%s links: %w", tableKey, err)
+			}
+		}
+	}
+
+	// Phase 5: set notNull on required fields via PATCH
+	for _, phase := range phases {
+		for _, tableKey := range phase {
+			def := schema[tableKey]
+			if err := setRequiredFields(ctx, client, tableKey, def, result); err != nil {
+				return nil, fmt.Errorf("%s required: %w", tableKey, err)
 			}
 		}
 	}
@@ -66,7 +80,7 @@ func saveField(result *SetupResult, table, name, id string) {
 }
 
 func createTableFromDef(ctx context.Context, client *Client, baseID, tableKey string, def TableDef, result *SetupResult) error {
-	// convert FieldDefs to CreateFieldRequests (non-link fields only)
+	// convert FieldDefs to CreateFieldRequests (non-link fields, no notNull)
 	var fields []CreateFieldRequest
 	for _, f := range def.Fields {
 		fields = append(fields, CreateFieldRequest{
@@ -96,7 +110,7 @@ func createTableFromDef(ctx context.Context, client *Client, baseID, tableKey st
 			continue // target table not created yet — handled in phase 4
 		}
 
-		f, err := client.CreateField(ctx, resp.ID, CreateFieldRequest{
+		f, err := client.CreateField(ctx, resp.ID, StandaloneFieldRequest{
 			Name: link.Name,
 			Type: "link",
 			Options: LinkFieldOptions{
@@ -117,7 +131,6 @@ func createTableFromDef(ctx context.Context, client *Client, baseID, tableKey st
 func createMissingLinks(ctx context.Context, client *Client, tableKey string, def TableDef, result *SetupResult) error {
 	tableID := result.Tables[tableKey]
 	for _, link := range def.LinkFields {
-		// skip if already created
 		if _, exists := result.Fields[tableKey][link.Name]; exists {
 			continue
 		}
@@ -127,7 +140,7 @@ func createMissingLinks(ctx context.Context, client *Client, tableKey string, de
 			return fmt.Errorf("foreign table %q not found", link.ForeignTable)
 		}
 
-		f, err := client.CreateField(ctx, tableID, CreateFieldRequest{
+		f, err := client.CreateField(ctx, tableID, StandaloneFieldRequest{
 			Name: link.Name,
 			Type: "link",
 			Options: LinkFieldOptions{
@@ -140,6 +153,28 @@ func createMissingLinks(ctx context.Context, client *Client, tableKey string, de
 			return fmt.Errorf("link field %s: %w", link.Name, err)
 		}
 		saveField(result, tableKey, link.Name, f.ID)
+	}
+	return nil
+}
+
+// setRequiredFields PATCHes notNull: true on fields that are marked as required.
+func setRequiredFields(ctx context.Context, client *Client, tableKey string, def TableDef, result *SetupResult) error {
+	tableID := result.Tables[tableKey]
+	notNull := true
+
+	for _, f := range def.Fields {
+		if !f.NotNull {
+			continue
+		}
+		fieldID, ok := result.Fields[tableKey][f.Name]
+		if !ok {
+			continue
+		}
+		if err := client.UpdateField(ctx, tableID, fieldID, UpdateFieldRequest{
+			NotNull: &notNull,
+		}); err != nil {
+			return fmt.Errorf("setting notNull on %s: %w", f.Name, err)
+		}
 	}
 	return nil
 }

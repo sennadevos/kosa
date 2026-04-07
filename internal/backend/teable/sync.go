@@ -67,21 +67,30 @@ func SchemaSync(ctx context.Context, client *Client, tables map[string]string) (
 			}
 
 			// create missing field
-			req := CreateFieldRequest{
+			created, err := client.CreateField(ctx, tableID, StandaloneFieldRequest{
 				Name:    fieldDef.Name,
 				Type:    fieldDef.Type,
 				Options: fieldDef.Options,
-			}
-			created, err := client.CreateField(ctx, tableID, req)
+			})
 			if err != nil {
 				return nil, fmt.Errorf("creating field %s.%s: %w", tableKey, fieldDef.Name, err)
+			}
+
+			// set notNull if required
+			if fieldDef.NotNull {
+				notNull := true
+				if err := client.UpdateField(ctx, tableID, created.ID, UpdateFieldRequest{
+					NotNull: &notNull,
+				}); err != nil {
+					return nil, fmt.Errorf("setting notNull on %s.%s: %w", tableKey, fieldDef.Name, err)
+				}
 			}
 
 			result.Actions = append(result.Actions, SyncAction{
 				Table:   tableKey,
 				Field:   fieldDef.Name,
 				Action:  "create_field",
-				Details: fmt.Sprintf("type=%s", fieldDef.Type),
+				Details: fmt.Sprintf("type=%s required=%v", fieldDef.Type, fieldDef.NotNull),
 				FieldID: created.ID,
 			})
 		}
@@ -109,7 +118,7 @@ func SchemaSync(ctx context.Context, client *Client, tables map[string]string) (
 				continue
 			}
 
-			req := CreateFieldRequest{
+			created, err := client.CreateField(ctx, tableID, StandaloneFieldRequest{
 				Name: linkDef.Name,
 				Type: "link",
 				Options: LinkFieldOptions{
@@ -117,8 +126,7 @@ func SchemaSync(ctx context.Context, client *Client, tables map[string]string) (
 					ForeignTableID: foreignTableID,
 					IsOneWay:       true,
 				},
-			}
-			created, err := client.CreateField(ctx, tableID, req)
+			})
 			if err != nil {
 				return nil, fmt.Errorf("creating link %s.%s: %w", tableKey, linkDef.Name, err)
 			}
