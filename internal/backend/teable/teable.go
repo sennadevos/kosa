@@ -51,7 +51,7 @@ func filterJSON(conditions []filterCondition) string {
 
 type filterExpr struct {
 	Conjunction string            `json:"conjunction"`
-	Conditions  []filterCondition `json:"conditions"`
+	Conditions  []filterCondition `json:"filterSet"`
 }
 
 type filterCondition struct {

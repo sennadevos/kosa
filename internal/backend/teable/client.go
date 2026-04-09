@@ -36,7 +36,8 @@ type listResponse struct {
 }
 
 type createRequest struct {
-	Records []createRecordEntry `json:"records"`
+	FieldKeyType string              `json:"fieldKeyType"`
+	Records      []createRecordEntry `json:"records"`
 }
 
 type createRecordEntry struct {
@@ -48,7 +49,8 @@ type createResponse struct {
 }
 
 type updateRequest struct {
-	Record updateRecordEntry `json:"record"`
+	FieldKeyType string           `json:"fieldKeyType"`
+	Record       updateRecordEntry `json:"record"`
 }
 
 type updateRecordEntry struct {
@@ -94,6 +96,7 @@ func (c *Client) doRequest(ctx context.Context, method, path string, body interf
 
 func (c *Client) ListRecords(ctx context.Context, tableID string, filter string, sort string, limit int) ([]RawRecord, error) {
 	params := url.Values{}
+	params.Set("fieldKeyType", "id")
 	if filter != "" {
 		params.Set("filter", filter)
 	}
@@ -104,10 +107,7 @@ func (c *Client) ListRecords(ctx context.Context, tableID string, filter string,
 		params.Set("take", fmt.Sprintf("%d", limit))
 	}
 
-	path := fmt.Sprintf("/api/table/%s/record", tableID)
-	if len(params) > 0 {
-		path += "?" + params.Encode()
-	}
+	path := fmt.Sprintf("/api/table/%s/record?%s", tableID, params.Encode())
 
 	data, err := c.doRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
@@ -122,7 +122,7 @@ func (c *Client) ListRecords(ctx context.Context, tableID string, filter string,
 }
 
 func (c *Client) GetRecord(ctx context.Context, tableID, recordID string) (*RawRecord, error) {
-	path := fmt.Sprintf("/api/table/%s/record/%s", tableID, recordID)
+	path := fmt.Sprintf("/api/table/%s/record/%s?fieldKeyType=id", tableID, recordID)
 	data, err := c.doRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, err
@@ -138,7 +138,8 @@ func (c *Client) GetRecord(ctx context.Context, tableID, recordID string) (*RawR
 func (c *Client) CreateRecord(ctx context.Context, tableID string, fields map[string]interface{}) (*RawRecord, error) {
 	path := fmt.Sprintf("/api/table/%s/record", tableID)
 	body := createRequest{
-		Records: []createRecordEntry{{Fields: fields}},
+		FieldKeyType: "id",
+		Records:      []createRecordEntry{{Fields: fields}},
 	}
 
 	data, err := c.doRequest(ctx, http.MethodPost, path, body)
@@ -159,7 +160,8 @@ func (c *Client) CreateRecord(ctx context.Context, tableID string, fields map[st
 func (c *Client) UpdateRecord(ctx context.Context, tableID, recordID string, fields map[string]interface{}) (*RawRecord, error) {
 	path := fmt.Sprintf("/api/table/%s/record/%s", tableID, recordID)
 	body := updateRequest{
-		Record: updateRecordEntry{Fields: fields},
+		FieldKeyType: "id",
+		Record:       updateRecordEntry{Fields: fields},
 	}
 
 	data, err := c.doRequest(ctx, http.MethodPatch, path, body)
