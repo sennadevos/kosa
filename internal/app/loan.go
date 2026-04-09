@@ -15,6 +15,7 @@ type LoanNewInput struct {
 	Description      string
 	Amount           domain.Amount
 	Currency         string
+	DateCreated      time.Time
 	DueDate          *time.Time
 	InterestType     domain.InterestType
 	InterestRate     domain.Amount
@@ -28,6 +29,11 @@ func (a *App) LoanNew(ctx context.Context, in LoanNewInput) (*domain.Loan, error
 		interestType = domain.InterestNone
 	}
 
+	dateCreated := in.DateCreated
+	if dateCreated.IsZero() {
+		dateCreated = time.Now()
+	}
+
 	loan, err := a.Backend.CreateLoan(ctx, domain.LoanInput{
 		Type:             in.Type,
 		CounterpartyName: in.CounterpartyName,
@@ -35,7 +41,7 @@ func (a *App) LoanNew(ctx context.Context, in LoanNewInput) (*domain.Loan, error
 		Description:      in.Description,
 		OriginalAmount:   in.Amount,
 		Currency:         in.Currency,
-		DateCreated:      time.Now(),
+		DateCreated:      dateCreated,
 		DueDate:          in.DueDate,
 		InterestType:     interestType,
 		InterestRate:     in.InterestRate,
@@ -133,20 +139,22 @@ func (a *App) LoanShow(ctx context.Context, loanID string) (*domain.Loan, *domai
 	return loan, status, timeline, nil
 }
 
-func (a *App) Owe(ctx context.Context, amount domain.Amount, description, counterparty string) (*domain.Loan, error) {
+func (a *App) Owe(ctx context.Context, amount domain.Amount, description, counterparty string, date time.Time) (*domain.Loan, error) {
 	return a.LoanNew(ctx, LoanNewInput{
 		Type:             domain.LoanPayable,
 		CounterpartyName: counterparty,
 		Description:      description,
 		Amount:           amount,
+		DateCreated:      date,
 	})
 }
 
-func (a *App) Lent(ctx context.Context, amount domain.Amount, description, counterparty string) (*domain.Loan, error) {
+func (a *App) Lent(ctx context.Context, amount domain.Amount, description, counterparty string, date time.Time) (*domain.Loan, error) {
 	return a.LoanNew(ctx, LoanNewInput{
 		Type:             domain.LoanReceivable,
 		CounterpartyName: counterparty,
 		Description:      description,
 		Amount:           amount,
+		DateCreated:      date,
 	})
 }

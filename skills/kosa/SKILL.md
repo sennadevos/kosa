@@ -31,9 +31,9 @@ Optional flags for all transaction commands:
 
 ### Loans
 ```bash
-kosa owe <amount> "<description>" --to "<name>"         # you owe someone
-kosa lent <amount> "<description>" --to "<name>"        # someone owes you
-kosa loan new "<desc>" <amount> --from/--to "<name>" [--interest periodic --rate 1.5 --period monthly --due YYYY-MM-DD]
+kosa owe <amount> "<description>" --to "<name>" [--date YYYY-MM-DD]   # you owe someone
+kosa lent <amount> "<description>" --to "<name>" [--date YYYY-MM-DD]  # someone owes you
+kosa loan new "<desc>" <amount> --from/--to "<name>" [--date YYYY-MM-DD --interest periodic --rate 1.5 --period monthly --due YYYY-MM-DD]
 kosa loan pay <loan-id> <amount>
 kosa loan show <loan-id>
 kosa loans [--payable | --receivable]

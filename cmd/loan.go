@@ -29,6 +29,7 @@ var loanNewCmd = &cobra.Command{
 
 		from, _ := cmd.Flags().GetString("from")
 		to, _ := cmd.Flags().GetString("to")
+		dateStr, _ := cmd.Flags().GetString("date")
 		dueStr, _ := cmd.Flags().GetString("due")
 		interestStr, _ := cmd.Flags().GetString("interest")
 		rateStr, _ := cmd.Flags().GetString("rate")
@@ -45,6 +46,15 @@ var loanNewCmd = &cobra.Command{
 			counterparty = to
 		} else {
 			return fmt.Errorf("specify --from (payable) or --to (receivable)")
+		}
+
+		var dateCreated time.Time
+		if dateStr != "" {
+			d, err := time.Parse("2006-01-02", dateStr)
+			if err != nil {
+				return fmt.Errorf("date: %w", err)
+			}
+			dateCreated = d
 		}
 
 		var dueDate *time.Time
@@ -74,6 +84,7 @@ var loanNewCmd = &cobra.Command{
 			CounterpartyName: counterparty,
 			Description:      args[0],
 			Amount:           amount,
+			DateCreated:      dateCreated,
 			DueDate:          dueDate,
 			InterestType:     interestType,
 			InterestRate:     interestRate,
@@ -136,6 +147,7 @@ var loanShowCmd = &cobra.Command{
 func init() {
 	loanNewCmd.Flags().String("from", "", "counterparty (payable — you owe them)")
 	loanNewCmd.Flags().String("to", "", "counterparty (receivable — they owe you)")
+	loanNewCmd.Flags().String("date", "", "loan date (YYYY-MM-DD, default today)")
 	loanNewCmd.Flags().String("due", "", "due date (YYYY-MM-DD)")
 	loanNewCmd.Flags().String("interest", "", "interest type: none/flat/periodic")
 	loanNewCmd.Flags().String("rate", "", "interest rate percentage")

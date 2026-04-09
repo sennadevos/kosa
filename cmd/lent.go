@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -23,8 +24,16 @@ var lentCmd = &cobra.Command{
 		if to == "" {
 			return fmt.Errorf("--to is required")
 		}
+		dateStr, _ := cmd.Flags().GetString("date")
+		var date time.Time
+		if dateStr != "" {
+			date, err = time.Parse("2006-01-02", dateStr)
+			if err != nil {
+				return fmt.Errorf("date: %w", err)
+			}
+		}
 
-		loan, err := application.Lent(cmd.Context(), amount, args[1], to)
+		loan, err := application.Lent(cmd.Context(), amount, args[1], to, date)
 		if err != nil {
 			return err
 		}
@@ -35,5 +44,6 @@ var lentCmd = &cobra.Command{
 
 func init() {
 	lentCmd.Flags().String("to", "", "who owes you")
+	lentCmd.Flags().String("date", "", "loan date (YYYY-MM-DD, default today)")
 	rootCmd.AddCommand(lentCmd)
 }
